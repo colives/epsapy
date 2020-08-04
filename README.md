@@ -1,11 +1,9 @@
 # epsapy
 Python package for Electric Power Systems Analysis
 
-It provides:
+It will provide:
 
-    + Power Flow Analysis
-    
-    + State Estimation
+    + Three-phase Power Flow Analysis
     
     + Numerical Integration for Transient Stability
     
