@@ -14,9 +14,11 @@ class node(object):
     def __init__ (self,name):
         self.name = name
         self.id = node.next_id
-        self.v, self.angle = None, None
+        self.v1, self.angle1 = None, None
+        self.v2, self.angle2 = None, None
+        self.v0, self.angle0 = None, None
         self.kind = 'pq'
-        self.p,self.q = 0,0
+        self.p,self.q = 0, 0
         node.node_list.append(self)
         node.next_id += 1
     
