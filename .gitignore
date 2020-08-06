@@ -10,6 +10,9 @@ __pycache__/
 
 # file patterns to ignore
 *.egg
-*.py[cod]
+*.pyc
+*.pyo
+*.orig
+.DS_Store
 *.so
 *~
