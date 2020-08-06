@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Aug  2 23:42:14 2020
-
-@author: carlosolives
-"""
 
 from setuptools import setup, find_packages
-import pathlib
+modules = find_packages(exclude=['examples'])
+from os import path
+import codecs
+this_directory = path.abspath(path.dirname(__file__))
+long_description = codecs.open(path.join(this_directory, 'README.md'), 'r', 'utf-8').read()
 
-here = pathlib.Path(__file__).parent.resolve()
-long_description = (here / 'README.md').read_text(encoding='utf-8')
+import epsapy
 
 setup(
     name='epsapy',
-    version='0.0.1',
+    version=epsapy.__version__,
     description='Electric Power System Analysis',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/colives/epsapy',
     author='Carlos Olives',
     author_email='carlos.olives.camps@gmail.com',
+    license='MIT',
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
@@ -34,6 +33,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=find_packages(),
+    package_dir={'':'src'},
+    packages=find_packages(where='src'),
     python_requires='>=3.5, <4',
 )
