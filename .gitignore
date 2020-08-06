@@ -1,9 +1,15 @@
 # general things to ignore
+
+# folders to ignore
 build/
 dist/
+__pycache__/
 *.egg-info/
+
+# files to ignore
+
+# file patterns to ignore
 *.egg
 *.py[cod]
-__pycache__/
 *.so
 *~
