@@ -6,6 +6,6 @@ Electrical Power Systems Analysis
 """
 
 import epsapy
-__autor__ = 'Carlos Olives'
-__vesion__ = '0.0.0'
+__author__ = 'Carlos Olives'
+__version__ = '0.0.0'
 __revision__ = '0.0.1'
