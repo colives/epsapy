@@ -8,11 +8,9 @@ import codecs
 this_directory = path.abspath(path.dirname(__file__))
 long_description = codecs.open(path.join(this_directory, 'README.md'), 'r', 'utf-8').read()
 
-import epsapy
-
 setup(
     name='epsapy',
-    version=epsapy.__version__,
+    version='0.0.0',
     description='Electric Power System Analysis',
     long_description=long_description,
     long_description_content_type='text/markdown',
