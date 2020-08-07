@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# This file is part of epsapy
+#
+# epsapy is free software: you can redistribute it and/or modify it under the
+# terms of the MIT License.
+#
+# epsapy is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY.
 """
-Created on Mon Aug  3 11:41:54 2020
-
-@author: carlosolives
+The :mod:`~epsapy.elements` module provides basic classes to build the
+power flow problem.
 """
 
 class node(object):
