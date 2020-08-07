@@ -15,8 +15,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/colives/epsapy',
-    author='Carlos Olives',
-    author_email='carlos.olives.camps@gmail.com',
+    author='Carlos Olives, Francisco Casado',
+    author_email='carlos.olives.camps@gmail.com, fcasadomachado@gmail.com',
     license='MIT',
     classifiers=[
         # How mature is this project? Common values are
