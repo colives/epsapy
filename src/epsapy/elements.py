@@ -39,11 +39,18 @@ class Bus(object):
 
 class Branch(object):
 
-    def __init__(self,name,bus_i,bus_j,smax,phases):
+    def __init__(self,name,bus_i,bus_j,s_max,phases):
         self.name = name
-        self.smax = smax
+        self.s_max = s_max
+        self.bus_i = bus_i
+        self.bus_j = bus_j
         self.p, self.q = None, None
 
+    def limit(p,q,s_max):
+        lim = False
+        if p*p + q*q < s_max*s_max:
+            lim = True
+        return lim
 
 class Line(Branch):
     
@@ -61,18 +68,18 @@ class System(object):
         self.s_b = s_b
         self.num_phs = num_phs
         self.num_cond = num_cond
-        self.info = {}
+        # self.info = {}
+        self.info = {'Buses': {}, 'Lines': {}, 'Transformers': {}, 'Generators': {}, 'Loads': {}}
         
     def new_element(self,key,value):
-        if key in self.info.keys():
-            self.info[key].append(value)
-        else:
-            self.info[key] = [value]
+        self.info[key][value.name] = value
 
     def bus(self,name):
         System.new_element(self,'Buses', Bus(name, self.num_phs, self.num_cond))
         
     def line(self,name,bus_i,bus_j,s_max,phases,long,r,l):
+        bus_i = self.info['Buses'][bus_i].id
+        bus_j = self.info['Buses'][bus_j].id
         System.new_element(self, 'Lines', Line(name,bus_i,bus_j,s_max,phases,long,r,l))
     
     def transformer(self,name):
