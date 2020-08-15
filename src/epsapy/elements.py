@@ -21,7 +21,16 @@ class System(object):
         self.s_b = s_b
         self.num_phs = num_phs
         self.num_cond = num_cond
+        self.info = {}
+        
+    def new_element(self,key,value):
+        if key in self.info.keys():
+            self.info[key].append(value)
+        else:
+            self.info[key] = [value]
 
+    def bus(self,name):
+        System.new_element(self,'Buses', Bus(name, self.num_phs, self.num_cond))
 
 class Node(object):
     
@@ -33,18 +42,18 @@ class Node(object):
 
 
 class Bus(object):
-    
     bus_id = 0
     node_cls = Node
     
-    def __init__ (self,name):
+    def __init__ (self,name,phs,conds):
         self.name = name
         self.id = Bus.bus_id
-        for i in range(3):
+        for i in range(phs):
             exec('self.node_'+str(string.ascii_lowercase[i])+' = '+"self.node_cls('"+str(string.ascii_lowercase[i])+"')")
+        if conds -phs:
+            self.node_n = self.node_cls('n')
         Bus.bus_id += 1
-            
-
+        
 # class branch(object):
 
 #     branch_list = []
