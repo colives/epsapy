@@ -14,24 +14,6 @@ power flow problem.
 
 import string
 
-class System(object):
-    
-    def __init__(self,freq,s_b,num_phs,num_cond):
-        self.freq = freq
-        self.s_b = s_b
-        self.num_phs = num_phs
-        self.num_cond = num_cond
-        self.info = {}
-        
-    def new_element(self,key,value):
-        if key in self.info.keys():
-            self.info[key].append(value)
-        else:
-            self.info[key] = [value]
-
-    def bus(self,name):
-        System.new_element(self,'Buses', Bus(name, self.num_phs, self.num_cond))
-
 class Node(object):
     
     def __init__ (self,cond):
@@ -50,34 +32,57 @@ class Bus(object):
         self.id = Bus.bus_id
         for i in range(phs):
             exec('self.node_'+str(string.ascii_lowercase[i])+' = '+"self.node_cls('"+str(string.ascii_lowercase[i])+"')")
-        if conds -phs:
+        if conds -phs == 1:
             self.node_n = self.node_cls('n')
         Bus.bus_id += 1
+
+
+class Branch(object):
+
+    def __init__(self,name,bus_i,bus_j,smax,phases):
+        self.name = name
+        self.smax = smax
+        self.p, self.q = None, None
+
+
+class Line(Branch):
+    
+    def __init__(self,name,node1,node2,smax,phases,long,r,l):
+        Branch.__init__(self,name,node1,node2,smax,phases)
+        self.long = long
+        self.r = r
+        self.l = l
+
+
+class System(object):
+    
+    def __init__(self,freq,s_b,num_phs,num_cond):
+        self.freq = freq
+        self.s_b = s_b
+        self.num_phs = num_phs
+        self.num_cond = num_cond
+        self.info = {}
         
-# class branch(object):
+    def new_element(self,key,value):
+        if key in self.info.keys():
+            self.info[key].append(value)
+        else:
+            self.info[key] = [value]
 
-#     branch_list = []
-
-#     def __init__(self,name,node1,node2,smax):
-#         self.name = name
-#         self.node1 = reallocation(node1)
-#         self.node2 = reallocation(node2)
-#         self.smax = smax
-#         self.p, self.q = None, None
-
-#     def get_name(self):
-#         return self.name
-#     def get_nodes_connected(self):
-#         return self.node1, self.node2
-#     def get_p_lim(self):
-#         return self.p_max
-#     def get_q_lim(self):
-#         return self.q_max
-
-#     def set_p(self, newp):
-#         self.p = newp
-#     def set_q(self, newq):
-#         self.q = newq
+    def bus(self,name):
+        System.new_element(self,'Buses', Bus(name, self.num_phs, self.num_cond))
+        
+    def line(self,name,bus_i,bus_j,s_max,phases,long,r,l):
+        System.new_element(self, 'Lines', Line(name,bus_i,bus_j,s_max,phases,long,r,l))
+    
+    def transformer(self,name):
+        pass
+    
+    def generator(self,name):
+        pass
+    
+    def load(self,name):
+        pass
 
 # class transformer(branch):
 
@@ -86,28 +91,6 @@ class Bus(object):
 #         self.v1_nom, self.v2_nom = v1_nom, v2_nom
 #         transformer.branch_list.append(self)
 
-#     def get_rt(self):
-#         return self.v1_nom/self.v2_nom
-#     def get_r(self):
-#         return self.r
-#     def get_x(self):
-#         return self.x
-
-# class line(branch):
-    
-#     def __init__(self,name,node1,node2,smax,long,r,x):
-#         branch.__init__(self,name,node1,node2,smax)
-#         self.long = long
-#         self.r = r
-#         self.x = x
-#         line.branch_list.append(self)
-
-#     def get_r(self):
-#         return self.r*self.long
-#     def get_x(self):
-#         return self.x*self.long
-#     def get_long(self):
-#         return self.long
 
 # class generator(object):
     
@@ -124,41 +107,6 @@ class Bus(object):
 #         generator.generator_list.append(self)
 #         update_node(self)
         
-#     def get_name(self):
-#         return self.name
-#     def get_node(self):
-#         return self.node
-#     def get_kind(self):
-#         return self.kind
-#     def get_p_lim(self):
-#         return self.p_min,self.p_max
-#     def get_q_lim(self):
-#         return self.q_min,self.q_max
-#     def get_p(self):
-#         return self.p
-#     def get_q(self):
-#         return self.q
-#     def get_volt(self):
-#         return self.v
-#     def get_angle(self):
-#         return self.theta
-    
-#     def set_kind(self,newkind):
-#         self.kind = newkind
-#         update_node(self)
-#     def set_p(self, newp):
-#         self.p = newp
-#         update_node(self)
-#     def set_q(self, newq):
-#         self.q = newq
-#         update_node(self)
-#     def set_volt(self, newv):
-#         self.v = newv
-#         update_node(self)
-#     def set_angle(self, newtheta):
-#         self.theta = newtheta
-#         update_node(self)
-        
 # class load(object):
     
 #     load_list = []
@@ -172,41 +120,7 @@ class Bus(object):
 #         self.v,self.theta = v,theta
 #         load.load_list.append(self)
 #         update_node(self)
-        
-#     def get_name(self):
-#         return self.name
-#     def get_node(self):
-#         return self.node
-#     def get_kind(self):
-#         return self.kind
-#     def get_p_sp(self):
-#         return self.p_sp
-#     def get_q_sp(self):
-#         return self.q_sp
-#     def get_p(self):
-#         return self.p
-#     def get_q(self):
-#         return self.q
-#     def get_volt(self):
-#         return self.v
-#     def get_angle(self):
-#         return self.theta
-    
-#     def set_kind(self,newkind):
-#         self.kind = newkind
-#         update_node(self)
-#     def set_p(self, newp):
-#         self.p = newp
-#         update_node(self)
-#     def set_q(self, newq):
-#         self.q = newq
-#         update_node(self)
-#     def set_volt(self, newv):
-#         self.v = newv
-#         update_node(self)
-#     def set_angle(self, newtheta):
-#         self.theta = newtheta
-#         update_node(self)
+
         
 # def reallocation(node_name):
 #     aux = None
