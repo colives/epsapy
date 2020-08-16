@@ -27,13 +27,12 @@ class Bus(object):
     bus_id = 0
     node_cls = Node
     
-    def __init__ (self,name,phs,conds):
+    def __init__ (self,name,v_b,conds):
         self.name = name
         self.id = Bus.bus_id
-        for i in range(phs):
-            exec('self.node_'+str(string.ascii_lowercase[i])+' = '+"self.node_cls('"+str(string.ascii_lowercase[i])+"')")
-        if conds -phs == 1:
-            self.node_n = self.node_cls('n')
+        self.v_b = v_b
+        for cond in conds:
+            exec('self.node_'+cond+' = '+"self.node_cls('"+cond+"')")
         Bus.bus_id += 1
 
 
@@ -52,6 +51,7 @@ class Branch(object):
             lim = True
         return lim
 
+
 class Line(Branch):
     
     def __init__(self,name,node1,node2,smax,phases,long,r,l):
@@ -68,14 +68,16 @@ class System(object):
         self.s_b = s_b
         self.num_phs = num_phs
         self.num_cond = num_cond
-        # self.info = {}
+        self.phases = [string.ascii_lowercase[i] for i in range(num_phs)]
+        _all = self.phases + ['n','gr']
+        self.conds = [_all[i] for i in range(num_cond)]
         self.info = {'Buses': {}, 'Lines': {}, 'Transformers': {}, 'Generators': {}, 'Loads': {}}
         
     def new_element(self,key,value):
         self.info[key][value.name] = value
 
-    def bus(self,name):
-        System.new_element(self,'Buses', Bus(name, self.num_phs, self.num_cond))
+    def bus(self,name,v_b):
+        System.new_element(self,'Buses', Bus(name, v_b, self.conds))
         
     def line(self,name,bus_i,bus_j,s_max,phases,long,r,l):
         bus_i = self.info['Buses'][bus_i].id
