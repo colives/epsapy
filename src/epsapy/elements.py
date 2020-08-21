@@ -54,13 +54,31 @@ class Branch(object):
 
 class Line(Branch):
     
-    def __init__(self,name,node1,node2,smax,phases,long,r,l):
-        Branch.__init__(self,name,node1,node2,smax,phases)
+    def __init__(self,name,bus_i,bus_j,smax,phases,long,r1,l1,r0,l0):
+        super().__init__(self,name,bus_i,bus_j,smax,phases)
         self.long = long
-        self.r = r
-        self.l = l
+        self.r1 = r1
+        self.l1 = l1
+        self.r0 = r0
+        self.l0 = l0
 
 
+class Transformer(Branch):
+
+    def __init__(self,name,bus_i,bus_j,r,x,smax,phases,v_inom,v_jnom,conn):
+        super().__init__(name,bus_i,bus_j,smax,phases)
+        self.v_inom = v_inom
+        self.v_jnom = v_jnom
+        self.conn = conn
+
+
+class Shunt(object):
+
+    def __init__(self,name,bus):
+        self.name = name
+        self.bus = bus
+    
+    
 class System(object):
     
     def __init__(self,freq,s_b,num_phs,num_cond):
@@ -71,7 +89,7 @@ class System(object):
         self.phases = [string.ascii_lowercase[i] for i in range(num_phs)]
         _all = self.phases + ['n','gr']
         self.conds = [_all[i] for i in range(num_cond)]
-        self.info = {'Buses': {}, 'Lines': {}, 'Transformers': {}, 'Generators': {}, 'Loads': {}}
+        self.info = {'Buses': {}, 'Lines': {}, 'Transformers': {}, 'Generators': {}, 'Loads': {}, 'Shunts':{}}
         
     def new_element(self,key,value):
         self.info[key][value.name] = value
@@ -84,26 +102,25 @@ class System(object):
         bus_j = self.info['Buses'][bus_j].id
         System.new_element(self, 'Lines', Line(name,bus_i,bus_j,s_max,phases,long,r,l))
     
-    def transformer(self,name):
+    def transformer(self,name,bus_i,bus_j,r,x,s_max,phases,v_inom,v_jnom,conn):
+        bus_i = self.info['Buses'][bus_i].id
+        bus_j = self.info['Buses'][bus_j].id
+        System.new_element(self,'Transformers',Transformer(name,bus_i,bus_j,r,x,s_max,phases,v_inom,v_jnom,conn))
+    
+    def generator(self,name,bus):
+        bus = self.info['Buses'][bus].id
         pass
     
-    def generator(self,name):
+    def load(self,name,bus):
+        bus = self.info['Buses'][bus].id
         pass
     
-    def load(self,name):
+    def shunt(self,name,bus):
+        bus = self.info['Buses'][bus].id
         pass
 
-# class transformer(branch):
 
-#     def __init__(self,name,node1,node2,r,x,smax,v1_nom,v2_nom):
-#         super().__init__(name,node1,node2,smax)
-#         self.v1_nom, self.v2_nom = v1_nom, v2_nom
-#         transformer.branch_list.append(self)
-
-
-# class generator(object):
-    
-#     generator_list = []
+# class Generator(object):
     
 #     def __init__ (self,name,node,kind,p_max,p_min,q_max,q_min,p=None,q=None,v=None,theta=None):
 #         self.name = name
@@ -116,9 +133,7 @@ class System(object):
 #         generator.generator_list.append(self)
 #         update_node(self)
         
-# class load(object):
-    
-#     load_list = []
+# class Load(object):
     
 #     def __init__(self,name,node,kind,p_sp,q_sp,p=None,q=None,v=None,theta=None):
 #         self.name = name
@@ -129,29 +144,3 @@ class System(object):
 #         self.v,self.theta = v,theta
 #         load.load_list.append(self)
 #         update_node(self)
-
-        
-# def reallocation(node_name):
-#     aux = None
-#     for bus in Node.node_list:
-#         if bus.get_name() == node_name:
-#             aux = bus.get_id()
-#             break
-#     else:
-#         print('Node '+node_name+' does not exist')
-#     return aux
-
-# def update_node(generator):
-#     for bus in Node.node_list:
-#         if bus.get_id() == generator.get_node():
-#             bus.set_kind(generator.get_kind())
-#             if generator.get_kind() == 'pq':
-#                 bus.set_p(generator.get_p())
-#                 bus.set_q(generator.get_q())
-#             elif generator.get_kind() == 'pv':
-#                 bus.set_volt(generator.get_volt())
-#                 bus.set_p(generator.get_p())
-#             elif generator.get_kind() == 'slack':
-#                 bus.set_volt(generator.get_volt())
-#                 bus.set_angle(generator.get_angle())
-#             break
