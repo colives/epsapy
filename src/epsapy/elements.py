@@ -46,7 +46,12 @@ class Branch(object):
         self.s_max = s_max
         self.bus_i = bus_i
         self.bus_j = bus_j
-        self.p, self.q = None, None
+        self.phases = phases
+        self.p_i = None
+        self.q_i = None
+        self.p_j = None
+        self.q_j = None
+        self.losses = abs(self.p_i -self.p_j)
 
     def limit(p,q,s_max):
         lim = False
@@ -133,14 +138,14 @@ class System(object):
         bus_j = self.info['Buses'][bus_j].id
         System.new_element(self,'Transformers',Transformer(name,bus_i,bus_j,r,x,s_max,phases,v_inom,v_jnom,conn))
     
-    # def generator(self,name,bus):
-    #     bus = self.info['Buses'][bus].id
-    #     pass
+    def generator(self,name,bus,p_max,p_min,q_max,q_min):
+        bus = self.info['Buses'][bus].id
+        System.new_element(self, 'Generators', Generator(name,bus,p_max,p_min,q_max,q_min))
     
-    # def load(self,name,bus,p_sp,q_sp,v_max,v_min):
-    #     bus = self.info['Buses'][bus].id
-    #     System.new_element(self, 'Loads', Load(name,bus,p_sp,q_sp,v_max,v_min))
+    def load(self,name,bus,p_sp,q_sp,v_max,v_min):
+        bus = self.info['Buses'][bus].id
+        System.new_element(self, 'Loads', Load(name,bus,p_sp,q_sp,v_max,v_min))
     
-    # def shunt(self,name,bus,phases):
-    #     bus = self.info['Buses'][bus].id
-    #     pass
+    def shunt(self,name,bus,phases):
+        bus = self.info['Buses'][bus].id
+        System.new_element(self, 'Shunts', Shunt(name,bus,phases))
