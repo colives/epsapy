@@ -18,9 +18,12 @@ class Node(object):
     
     def __init__ (self,cond):
         self.cond = cond
-        self.volt, self.angle_v = None, None
-        self.curr, self.angle_i = None, None
-        self.p,self.q = 0, 0
+        self.volt = None
+        self.angle_v = None
+        self.curr = None
+        self.angle_i = None
+        self.p = None
+        self.q = None
 
 
 class Bus(object):
@@ -74,11 +77,34 @@ class Transformer(Branch):
 
 class Shunt(object):
 
-    def __init__(self,name,bus):
+    def __init__(self,name,bus,phases):
         self.name = name
         self.bus = bus
+        self.phases = phases
     
+
+class Load(object):
     
+    def __init__(self,name,bus,p_sp,q_sp,v_max,v_min):
+        self.name = name
+        self.bus = bus
+        self.p_sp = p_sp
+        self.q_sp = q_sp
+        self.v_max = v_max
+        self.v_min = v_min
+        
+
+class Generator(object):
+    
+    def __init__ (self,name,bus,p_max,p_min,q_max,q_min):
+        self.name = name
+        self.bus = bus
+        self.p_max = p_max
+        self.p_min = p_min
+        self.q_max = q_max
+        self.q_min = q_min
+
+
 class System(object):
     
     def __init__(self,freq,s_b,num_phs,num_cond):
@@ -107,40 +133,14 @@ class System(object):
         bus_j = self.info['Buses'][bus_j].id
         System.new_element(self,'Transformers',Transformer(name,bus_i,bus_j,r,x,s_max,phases,v_inom,v_jnom,conn))
     
-    def generator(self,name,bus):
-        bus = self.info['Buses'][bus].id
-        pass
+    # def generator(self,name,bus):
+    #     bus = self.info['Buses'][bus].id
+    #     pass
     
-    def load(self,name,bus):
-        bus = self.info['Buses'][bus].id
-        pass
+    # def load(self,name,bus,p_sp,q_sp,v_max,v_min):
+    #     bus = self.info['Buses'][bus].id
+    #     System.new_element(self, 'Loads', Load(name,bus,p_sp,q_sp,v_max,v_min))
     
-    def shunt(self,name,bus):
-        bus = self.info['Buses'][bus].id
-        pass
-
-
-# class Generator(object):
-    
-#     def __init__ (self,name,node,kind,p_max,p_min,q_max,q_min,p=None,q=None,v=None,theta=None):
-#         self.name = name
-#         self.node = reallocation(node)
-#         self.kind = kind
-#         self.p_max,self.p_min = p_max,p_min
-#         self.q_max,self.q_min = q_max,q_min
-#         self.p,self.q = p,q
-#         self.v,self.theta = v,theta
-#         generator.generator_list.append(self)
-#         update_node(self)
-        
-# class Load(object):
-    
-#     def __init__(self,name,node,kind,p_sp,q_sp,p=None,q=None,v=None,theta=None):
-#         self.name = name
-#         self.node = reallocation(node)
-#         self.kind = kind
-#         self.p_sp,self.q_sp = p_sp,q_sp
-#         self.p,self.q = p,q
-#         self.v,self.theta = v,theta
-#         load.load_list.append(self)
-#         update_node(self)
+    # def shunt(self,name,bus,phases):
+    #     bus = self.info['Buses'][bus].id
+    #     pass
