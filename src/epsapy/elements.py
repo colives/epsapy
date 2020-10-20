@@ -47,11 +47,6 @@ class Branch(object):
         self.bus_i = bus_i
         self.bus_j = bus_j
         self.phases = phases
-        self.p_i = None
-        self.q_i = None
-        self.p_j = None
-        self.q_j = None
-        self.losses = abs(self.p_i -self.p_j)
 
     def limit(p,q,s_max):
         lim = False
@@ -62,13 +57,15 @@ class Branch(object):
 
 class Line(Branch):
     
-    def __init__(self,name,bus_i,bus_j,smax,phases,long,r1,l1,r0,l0):
-        super().__init__(self,name,bus_i,bus_j,smax,phases)
+    def __init__(self,name,bus_i,bus_j,s_max,phases,long,r_L,x_L,b_Li,g_Li,b_Lj,g_Lj):
+        super().__init__(name,bus_i,bus_j,s_max,phases)
         self.long = long
-        self.r1 = r1
-        self.l1 = l1
-        self.r0 = r0
-        self.l0 = l0
+        self.r_L = r_L
+        self.x_L = x_L
+        self.b_Li = b_Li
+        self.g_Li = g_Li
+        self.b_Lj = b_Lj
+        self.g_Lj = g_Lj
 
 
 class Transformer(Branch):
@@ -122,16 +119,19 @@ class System(object):
         self.conds = [_all[i] for i in range(num_cond)]
         self.info = {'Buses': {}, 'Lines': {}, 'Transformers': {}, 'Generators': {}, 'Loads': {}, 'Shunts':{}}
         
+    def __str__(self):
+        return '< freq: '+str(self.freq)+'; s_base: '+str(self.s_b)+'; conds: '+str(self.conds)+'; elements: '+ str(self.info)+' >'
+        
     def new_element(self,key,value):
         self.info[key][value.name] = value
 
     def bus(self,name,v_b):
         System.new_element(self,'Buses', Bus(name, v_b, self.conds))
         
-    def line(self,name,bus_i,bus_j,s_max,phases,long,r,l):
+    def line(self,name,bus_i,bus_j,s_max,phases,long,r_L,x_L,b_Li,g_Li,b_Lj,g_Lj):
         bus_i = self.info['Buses'][bus_i].id
         bus_j = self.info['Buses'][bus_j].id
-        System.new_element(self, 'Lines', Line(name,bus_i,bus_j,s_max,phases,long,r,l))
+        System.new_element(self,'Lines',Line(name,bus_i,bus_j,s_max,phases,long,r_L,x_L,b_Li,g_Li,b_Lj,g_Lj))
     
     def transformer(self,name,bus_i,bus_j,r,x,s_max,phases,v_inom,v_jnom,conn):
         bus_i = self.info['Buses'][bus_i].id
