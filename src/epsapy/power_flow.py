@@ -90,7 +90,7 @@ def solver(x,n,b,C,E,p,tol,maxIter):
     E2 = E.dot(E.transpose())
     for _ in range(maxIter):
         y = f_(C.dot(x),n,b)
-        res = p - E.dot(y)
+        res = p -E.dot(y)
         if np.linalg.norm(res,ord=np.inf)<tol:
             return x,
         beta = spsolve(E2,res)
