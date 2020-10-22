@@ -15,6 +15,7 @@ algorithm to solve a three phase power flow problem.
 import numpy as np
 from scipy import sparse
 from scipy.linalg import block_diag
+from scipy.sparse.linalg import spsolve
 
 def E_maker(Ysp,n,b,pv):
     Ydiag = Ysp.diagonal()
@@ -86,17 +87,17 @@ def F_(y,n):
     return F_
 
 def solver(x,n,b,C,E,p,tol,maxIter):
-    E2 = E.dot(E) 
+    E2 = E.dot(E.transpose())
     for _ in range(maxIter):
-        y = f_(C@x)
+        y = f_(C@x,n,b)
         res = p - E.dot(y)
         if np.linalg.norm(res,ord=np.inf)<tol:
             return x,
-        lamb = sparse.linalg.spsolve(E2,res)
+        lamb = spsolve(E2,res)
         y = y + E.T.dot(lamb)
         Fi = F_(y,n)
         aux  = E.dot(Fi)
-        x = sparse.linalg.spsolve(aux.dot(C),aux.dot(f(y,n,b)))
+        x = spsolve(aux.dot(C),aux.dot(f(y,n,b)))
     else:
         print('Maximum number of iterations has been reached: '+str(maxIter))
 
