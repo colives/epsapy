@@ -29,13 +29,13 @@ def E_maker(Ysp,n,b,pv):
     colqij = np.arange(2*n,2*(n+2*b))//2
     rowqij = np.reshape(np.column_stack((aux.row,aux.col,aux.row,aux.col)),-1)
     dataqij = np.reshape(np.column_stack((np.reshape(np.column_stack((-np.imag(aux.data),np.real(aux.data))),-1),np.reshape(np.column_stack((-np.imag(aux.data),-np.real(aux.data))),-1))),-1)
+    colpij = colqij[rowqij>0]
+    rowpij = rowqij[rowqij>0]+n-1
+    datapij = np.reshape(np.column_stack((np.reshape(np.column_stack((np.real(aux.data),np.imag(aux.data))),-1),np.reshape(np.column_stack((np.real(aux.data),-np.imag(aux.data))),-1))),-1)[rowqij>0]
     pvfilter = np.isin(rowqij,rowqii[np.logical_not(pv)])
     colqij = colqij[pvfilter]
     rowqij = rowqij[pvfilter]
     dataqij = dataqij[pvfilter]
-    colpij = colqij[rowqij>0]
-    rowpij = rowqij[rowqij>0]+n-1
-    datapij = np.reshape(np.column_stack((np.reshape(np.column_stack((np.real(aux.data),np.imag(aux.data))),-1),np.reshape(np.column_stack((np.real(aux.data),-np.imag(aux.data))),-1))),-1)[rowqij>0]
     ###
     row = np.concatenate((rowqii,rowpii,rowqij,rowpij))
     col = np.concatenate((colqii,colpii,colqij,colpij))
