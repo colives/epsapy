@@ -59,7 +59,7 @@ def C_maker(Ysp,n,b):
     data = np.concatenate((data0,data1,data2))
     return sparse.coo_matrix((data,(row,col))).tocsr()
 
-def p_construct(p_x,pv,n):
+def p_maker(p_x,pv,n):
     for ind in range(n):
         if pv[ind] == True:
             p_x[ind] = p_x[ind]**2
@@ -73,7 +73,7 @@ def f(y,n,b):
     
 def f_(u,n,b):
     y1 = np.exp(u[:n])
-    aux = np.column_stack((0.5*np.exp(u[n:n+b])*np.cos(u[n+b:]),0.5*np.exp(u[n:n+b])*np.sin(u[n+b:])))
+    aux = np.column_stack((np.exp(0.5*u[n:n+b])*np.cos(u[n+b:]),np.exp(0.5*u[n:n+b])*np.sin(u[n+b:])))
     aux = np.reshape(aux,-1)
     return np.concatenate((y1,aux))
 
@@ -84,19 +84,19 @@ def F_(y,n):
     F_ = np.diag(u)
     for k,l in zip(ks,ls):
         F_ = block_diag(F_,[[0.5*k,-l],[0.5*l,k]])
-    return F_
+    return sparse.csr_matrix((F_))
 
 def solver(x,n,b,C,E,p,tol,maxIter):
     E2 = E.dot(E.transpose())
     for _ in range(maxIter):
-        y = f_(C@x,n,b)
+        y = f_(C.dot(x),n,b)
         res = p - E.dot(y)
         if np.linalg.norm(res,ord=np.inf)<tol:
             return x,
-        lamb = spsolve(E2,res)
-        y = y + E.T.dot(lamb)
+        beta = spsolve(E2,res)
+        y = y + E.transpose().dot(beta)
         Fi = F_(y,n)
-        aux  = E.dot(Fi)
+        aux = E.dot(Fi)
         x = spsolve(aux.dot(C),aux.dot(f(y,n,b)))
     else:
         print('Maximum number of iterations has been reached: '+str(maxIter))
@@ -114,5 +114,5 @@ def power_flow(system, tol, maxIter):
     x0 = flat_start(n,p)
     C = C_maker(Ysp,n,b)
     E = E_maker(Ysp,n,b,pv)
-    p = p_construct(p,pv,n)
-    return solver(x0,n,b,C,E,p,tol,maxIter)
+    px = p_maker(p,pv,n)
+    return solver(x0,n,b,C,E,px,tol,maxIter)
