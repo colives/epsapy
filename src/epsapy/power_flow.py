@@ -29,9 +29,10 @@ def E_maker(Ysp,n,b,pv):
     colqij = np.arange(2*n,2*(n+2*b))//2
     rowqij = np.reshape(np.column_stack((aux.row,aux.col,aux.row,aux.col)),-1)
     dataqij = np.reshape(np.column_stack((np.reshape(np.column_stack((-np.imag(aux.data),np.real(aux.data))),-1),np.reshape(np.column_stack((-np.imag(aux.data),-np.real(aux.data))),-1))),-1)
-    colqij = colqij[np.logical_not(pv)]
-    rowqij = rowqij[np.logical_not(pv)]
-    dataqij = dataqij[np.logical_not(pv)]
+    pvfilter = np.isin(rowqij,rowqii[np.logical_not(pv)])
+    colqij = colqij[pvfilter]
+    rowqij = rowqij[pvfilter]
+    dataqij = dataqij[pvfilter]
     colpij = colqij[rowqij>0]
     rowpij = rowqij[rowqij>0]+n-1
     datapij = np.reshape(np.column_stack((np.reshape(np.column_stack((np.real(aux.data),np.imag(aux.data))),-1),np.reshape(np.column_stack((np.real(aux.data),-np.imag(aux.data))),-1))),-1)[rowqij>0]
@@ -63,8 +64,8 @@ def p_construct(p_x,pv,n):
             p_x[ind] = p_x[ind]**2
     return p_x
 
-def flat_start(n): #Falta multiplicar la tensión del slack
-    return np.concatenate((np.zeros(n-1),2*np.log(np.ones(n))))
+def flat_start(n,p): #Falta multiplicar la tensión del slack
+    return np.concatenate((np.zeros(n-1),2*np.log(p[0]*np.ones(n))))
 
 def f(y,n,b):
     return np.concatenate((np.log(y[:n]),np.log(y[n::2]**2+y[n+1::2]**2),np.arctan2(y[n+1::2],y[n::2])))
@@ -101,6 +102,7 @@ def solver(x,n,b,C,E,p,tol,maxIter):
 
 def power_flow(system, tol, maxIter):
     Ybus = system.Ybus()
+    p = system.p()
     pv = system.pv()
     if sparse.issparse(Ybus):
         Ysp = Ybus.copy()
@@ -108,8 +110,8 @@ def power_flow(system, tol, maxIter):
         Ysp = sparse.coo_matrix((Ybus))
     n = Ysp.shape[0]
     b = (len(sparse.find(Ysp)[0])-n)//2
-    x0 = flat_start(n)
+    x0 = flat_start(n,p)
     C = C_maker(Ysp,n,b)
     E = E_maker(Ysp,n,b,pv)
-    p = p_construct(system.p(),pv,n)
+    p = p_construct(p,pv,n)
     return solver(x0,n,b,C,E,p,tol,maxIter)
