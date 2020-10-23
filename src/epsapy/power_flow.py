@@ -69,7 +69,7 @@ def flat_start(n,p): #Falta multiplicar la tensión del slack
     return np.concatenate((np.zeros(n-1),2*np.log(p[0]*np.ones(n))))
 
 def f(y,n,b):
-    return np.concatenate((np.log(y[:n]),np.log(y[n::2]**2+y[n+1::2]**2),np.arctan2(y[n+1::2],y[n::2])))
+    return np.concatenate((np.log(y[:n],dtype=np.complex64),np.log(y[n::2]**2+y[n+1::2]**2),np.arctan2(np.real(y[n+1::2]),np.real(y[n::2]))))
     
 def f_(u,n,b):
     y1 = np.exp(u[:n])
