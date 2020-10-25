@@ -65,12 +65,14 @@ def p_maker(p,pv,n):
             p[ind] = p[ind]**2
     return p
 
-def flat_start(n,p): #Falta multiplicar la tensión del slack
+def flat_start(n,p):
     return np.concatenate((np.zeros(n-1),2*np.log(p[0]*np.ones(n))))
 
 def f(y,n,b):
-    return np.concatenate((np.log(y[:n],dtype=np.complex64),np.log(y[n::2]**2+y[n+1::2]**2),np.arctan2(np.real(y[n+1::2]),np.real(y[n::2]))))
-    
+    z = y[n+1::2]/y[n::2]
+    return np.concatenate((np.log(y[:n],dtype=np.complex64),np.log(y[n::2]**2+y[n+1::2]**2),1/(2*1j)*np.log((1+z*1j)/(1-z*1j))))
+    # return np.concatenate((np.log(y[:n],dtype=np.complex64),np.log(y[n::2]**2+y[n+1::2]**2),np.arctan2(np.abs(y[n+1::2]),np.abs(y[n::2]))))
+
 def f_(u,n,b):
     y1 = np.exp(u[:n])
     aux = np.column_stack((np.exp(0.5*u[n:n+b])*np.cos(u[n+b:]),np.exp(0.5*u[n:n+b])*np.sin(u[n+b:])))
@@ -81,10 +83,10 @@ def F_(y,n):
     u = y[:n]
     ks = y[n::2]
     ls = y[n+1::2]
-    F_ = np.diag(u)
+    Fi = np.diag(u)
     for k,l in zip(ks,ls):
-        F_ = block_diag(F_,[[0.5*k,-l],[0.5*l,k]])
-    return sparse.csr_matrix((F_))
+        Fi = block_diag(Fi,[[0.5*k,-l],[0.5*l,k]])
+    return sparse.csr_matrix((Fi))
 
 def solver(x,n,b,C,E,p,tol,maxIter):
     E2 = E.dot(E.transpose())
@@ -94,10 +96,10 @@ def solver(x,n,b,C,E,p,tol,maxIter):
         if np.linalg.norm(res,ord=np.inf)<tol:
             return x,
         beta = spsolve(E2,res)
-        y = y + E.transpose().dot(beta)
+        y = y +E.transpose().dot(beta)
         Fi = F_(y,n)
-        aux = E.dot(Fi)
-        x = spsolve(aux.dot(C),aux.dot(f(y,n,b)))
+        h = E.dot(Fi)
+        x = spsolve(h.dot(C),h.dot(f(y,n,b)))
     else:
         print('Maximum number of iterations has been reached: '+str(maxIter))
 
