@@ -22,7 +22,7 @@ def E_maker(Ysp,n,b,pv):
     aux = sparse.triu(Ysp,k=1)
     colqii = np.arange(n)
     rowqii = np.arange(n)
-    dataqii = np.imag(Ydiag)
+    dataqii = -np.imag(Ydiag)
     dataqii[pv] = 1
     colpii = np.arange(1,n)
     rowpii = np.arange(n,2*n-1)
@@ -59,11 +59,11 @@ def C_maker(Ysp,n,b):
     data = np.concatenate((data0,data1,data2))
     return sparse.coo_matrix((data,(row,col))).tocsr()
 
-def p_maker(p_x,pv,n):
+def p_maker(p,pv,n):
     for ind in range(n):
         if pv[ind] == True:
-            p_x[ind] = p_x[ind]**2
-    return p_x
+            p[ind] = p[ind]**2
+    return p
 
 def flat_start(n,p): #Falta multiplicar la tensión del slack
     return np.concatenate((np.zeros(n-1),2*np.log(p[0]*np.ones(n))))
@@ -114,5 +114,5 @@ def power_flow(system, tol, maxIter):
     x0 = flat_start(n,p)
     C = C_maker(Ysp,n,b)
     E = E_maker(Ysp,n,b,pv)
-    px = p_maker(p,pv,n)
-    return solver(x0,n,b,C,E,px,tol,maxIter)
+    p = p_maker(p,pv,n)
+    return solver(x0,n,b,C,E,p,tol,maxIter)
