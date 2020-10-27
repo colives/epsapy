@@ -53,7 +53,8 @@ def C_maker(Ysp,n,b):
     data1 = np.ones_like(row1)
     col2 = col1[col1>n-1][:]-n
     row2 = row1[col1>n-1]+b
-    data2 = np.concatenate((np.ones(n),-1*np.ones(n)))[col1>n-1]
+    data2 = np.concatenate((np.ones(b),-1*np.ones(b)))[col1>n-1]
+    ###
     row = np.concatenate((row0,row1,row2))
     col = np.concatenate((col0,col1,col2))
     data = np.concatenate((data0,data1,data2))
