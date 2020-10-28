@@ -62,12 +62,17 @@ def C_maker(Ysp,n,b):
 
 def p_maker(p,pv,n):
     for ind in range(n):
-        if pv[ind] == True:
+        if pv[ind]:
             p[ind] = p[ind]**2
     return p
 
-def flat_start(n,p):
-    return np.concatenate((np.zeros(n-1),2*np.log(p[0]*np.ones(n))))
+def flat_start(n,p,pv):
+    theta = np.zeros(n-1)
+    v = p[0]*np.ones(n)
+    for ind in range(n):
+        if pv[ind]:
+            v[ind] = p[ind]
+    return np.concatenate((theta,2*np.log(v)))
 
 def f(y,n,b):
     z = y[n+1::2]/y[n::2]
@@ -114,7 +119,7 @@ def power_flow(system, tol, maxIter):
         Ysp = sparse.coo_matrix((Ybus))
     n = Ysp.shape[0]
     b = (len(sparse.find(Ysp)[0])-n)//2
-    x0 = flat_start(n,p)
+    x0 = flat_start(n,p,pv)
     C = C_maker(Ysp,n,b)
     E = E_maker(Ysp,n,b,pv)
     p = p_maker(p,pv,n)
