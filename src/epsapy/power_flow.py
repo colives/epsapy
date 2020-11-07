@@ -15,7 +15,7 @@ algorithm to solve a three phase power flow problem.
 import numpy as np
 from scipy import sparse
 from scipy.linalg import block_diag
-from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import splu
 
 def E_maker(Ysp,n,b,pv):
     Ydiag = Ysp.diagonal()
@@ -60,7 +60,7 @@ def C_maker(Ysp,n,b):
     data = np.concatenate((data0,data1,data2))
     return sparse.coo_matrix((data,(row,col))).tocsr()
 
-def p_maker(p,pv,n):
+def p_maker(p,n,pv):
     for ind in range(n):
         if pv[ind]:
             p[ind] = p[ind]**2
@@ -74,16 +74,22 @@ def flat_start(n,p,pv):
             v[ind] = p[ind]
     return np.concatenate((theta,2*np.log(v)))
 
-def f(y,n,b):
-    z = y[n+1::2]/y[n::2]
-    return np.concatenate((np.log(y[:n],dtype=np.complex64),np.log(y[n::2]**2+y[n+1::2]**2),1/(2*1j)*np.log((1+z*1j)/(1-z*1j))))
-    # return np.concatenate((np.log(y[:n],dtype=np.complex64),np.log(y[n::2]**2+y[n+1::2]**2),np.arctan2(np.abs(y[n+1::2]),np.abs(y[n::2]))))
-
+def f(y,n):
+    if all(np.isreal(y)):
+        ui = np.log(y[:n])
+        uij = np.log(y[n::2]**2 +y[n+1::2]**2)
+        thetaij = np.arctan2(y[n+1::2],y[n::2])        
+    else:
+        ui = np.log(y[:n],dtype=np.complex64)
+        uij = np.log(y[n::2]**2 +y[n+1::2]**2)
+        z = y[n+1::2]/y[n::2]
+        thetaij = np.arctan2(np.imag(z),np.real(z))
+    return np.concatenate((ui,uij,thetaij))
+ 
 def f_(u,n,b):
-    y1 = np.exp(u[:n])
     aux = np.column_stack((np.exp(0.5*u[n:n+b])*np.cos(u[n+b:]),np.exp(0.5*u[n:n+b])*np.sin(u[n+b:])))
     aux = np.reshape(aux,-1)
-    return np.concatenate((y1,aux))
+    return np.concatenate((np.exp(u[:n]),aux))
 
 def F_(y,n):
     u = y[:n]
@@ -96,18 +102,22 @@ def F_(y,n):
 
 def solver(x,n,b,C,E,p,tol,maxIter):
     E2 = E.dot(E.transpose())
+    E2 = splu(E2.tocsc(),permc_spec='MMD_ATA')
     for _ in range(maxIter):
         y = f_(C.dot(x),n,b)
         res = p -E.dot(y)
         if np.linalg.norm(res,ord=np.inf)<tol:
             return x,
-        beta = spsolve(E2,res)
+        beta = E2.solve(res)
         y = y +E.transpose().dot(beta)
         Fi = F_(y,n)
         h = E.dot(Fi)
-        x = spsolve(h.dot(C),h.dot(f(y,n,b)))
+        H = h.dot(C)
+        H = splu(H.tocsc())
+        x = H.solve(h.dot(f(y,n)))
     else:
         print('Maximum number of iterations has been reached: '+str(maxIter))
+        print(x)
 
 def power_flow(system, tol, maxIter):
     Ybus = system.Ybus()
@@ -122,5 +132,5 @@ def power_flow(system, tol, maxIter):
     x0 = flat_start(n,p,pv)
     C = C_maker(Ysp,n,b)
     E = E_maker(Ysp,n,b,pv)
-    p = p_maker(p,pv,n)
+    p = p_maker(p,n,pv)
     return solver(x0,n,b,C,E,p,tol,maxIter)
