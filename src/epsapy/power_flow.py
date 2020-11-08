@@ -102,12 +102,12 @@ def F_(y,n):
 
 def solver(x,n,b,C,E,p,tol,maxIter):
     E2 = E.dot(E.transpose())
-    E2 = splu(E2.tocsc(),permc_spec='MMD_ATA')
+    E2 = splu(E2.tocsc())
     for _ in range(maxIter):
         y = f_(C.dot(x),n,b)
         res = p -E.dot(y)
         if np.linalg.norm(res,ord=np.inf)<tol:
-            return x,
+            return x
         beta = E2.solve(res)
         y = y +E.transpose().dot(beta)
         Fi = F_(y,n)
