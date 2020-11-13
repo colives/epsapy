@@ -8,3 +8,5 @@ It will provide:
     + Numerical Integration for Transient Stability
     
     + Eigenvalue Analysis
+
+We welcome contributions to epsapy of any kind.
