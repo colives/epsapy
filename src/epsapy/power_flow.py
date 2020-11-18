@@ -82,11 +82,11 @@ def f(y, n):
     if all(np.isreal(y)):
         ui = np.log(y[:n])
         uij = np.log(y[n::2]**2 + y[n+1::2]**2)
-        thetaij = np.arctan(y[n+1::2], y[n::2])
+        thetaij = np.angle(y[n::2] + y[n+1::2]*1j)
     else:
         ui = np.log(y[:n], dtype=np.complex64)
         uij = np.log(y[n::2]**2 + y[n+1::2]**2)
-        thetaij = np.angle(y[n+1::2]/y[n::2])
+        thetaij = np.angle(y[n::2] + y[n+1::2]*1j)
     return np.concatenate((ui, uij, thetaij))
 
 
@@ -96,12 +96,6 @@ def f_(u, n, b):
     return np.concatenate((np.exp(u[:n]), aux))
 
 
-# def F_u(u, n, b):
-#     a_i, a_ij, z_ij = u[:n], u[n:n+b], u[n+b:]
-#     Fi = np.diag(np.exp(a_i))
-#     for a, z in zip(a_ij, z_ij):
-#         Fi = block_diag(Fi, [[0.5*np.exp(0.5*a)*np.cos(z), -np.exp(0.5*a)*np.sin(z)], [0.5*np.exp(0.5*a)*np.sin(z), np.exp(0.5*a)*np.cos(z)]])
-#     return sparse.csr_matrix((Fi))
 def F_(y, n):
     Fi = np.diag(y[:n])
     for k, l in zip(y[n::2], y[n+1::2]):
@@ -119,8 +113,7 @@ def solver(x, n, b, C, E, p, tol, maxIter):
             return x
         beta = EEt.solve(res)
         y += E.transpose().dot(beta)
-        # Fi = F_(u, n, b)
-        Fi = F_(y, n) # Numéricamente igual, menos coste computacional
+        Fi = F_(y, n)
         h = E.dot(Fi)
         H = h.dot(C)
         H = splu(H.tocsc())
