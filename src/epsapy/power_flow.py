@@ -71,7 +71,7 @@ def p_maker(p, n, pv):
 
 
 def flat_start(n, p, pv):
-    theta, v = np.zeros(n-1), p[0]*np.ones(n)
+    theta, v = np.zeros(n-1), np.ones(n)
     for ind in range(n):
         if pv[ind]:
             v[ind] = p[ind]
@@ -109,7 +109,7 @@ def solver(x, n, b, C, E, p, tol, maxIter):
     for _ in range(maxIter):
         y = f_(C.dot(x), n, b)
         res = p - E.dot(y)
-        if np.linalg.norm(res, ord=np.inf) < tol:
+        if all(abs(res) < tol):
             return x
         beta = EEt.solve(res)
         y += E.transpose().dot(beta)
@@ -117,7 +117,8 @@ def solver(x, n, b, C, E, p, tol, maxIter):
         h = E.dot(Fi)
         H = h.dot(C)
         H = splu(H.tocsc())
-        x = H.solve(h.dot(f(y, n)))
+        d = h.dot(f(y, n))
+        x = H.solve(d)
     else:
         print('Maximum number of iterations has been reached: '+str(maxIter))
         return x
