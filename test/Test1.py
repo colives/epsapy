@@ -9,3 +9,5 @@ pv = np.array([True, True, False, False])
 
 tol = 1e-4
 maxIter = 20
+
+print(Ybus)

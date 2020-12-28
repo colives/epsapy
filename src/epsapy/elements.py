@@ -149,3 +149,12 @@ class System(object):
     def shunt(self,name,bus,phases):
         bus = self.info['Buses'][bus].id
         System.new_element(self, 'Shunts', Shunt(name,bus,phases))
+        
+    def Ybus(self):
+        pass
+        
+    def p(self):
+        pass
+    
+    def pv(self):
+        pass

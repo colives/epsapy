@@ -15,7 +15,7 @@ algorithm to solve a three phase power flow problem.
 import numpy as np
 from scipy import sparse
 from scipy.linalg import block_diag
-from scipy.sparse.linalg import splu
+from scipy.sparse.linalg import lsqr
 
 
 def E_maker(Ysp, n, b, pv):
@@ -71,7 +71,7 @@ def p_maker(p, n, pv):
 
 
 def flat_start(n, p, pv):
-    theta, v = np.zeros(n-1), np.ones(n)
+    theta, v = np.zeros(n-1), np.ones(n)*p[0]
     for ind in range(n):
         if pv[ind]:
             v[ind] = p[ind]
@@ -104,21 +104,19 @@ def F_(y, n):
 
 
 def solver(x, n, b, C, E, p, tol, maxIter):
-    EEt = E.dot(E.transpose())
-    EEt = splu(EEt.tocsc())
+    EEt = E.dot(E.transpose()).tocsc()
     for _ in range(maxIter):
         y = f_(C.dot(x), n, b)
         res = p - E.dot(y)
         if all(abs(res) < tol):
-            return x
-        beta = EEt.solve(res)
-        y += E.transpose().dot(beta)
+            return np.append(np.zeros(1),x)
+        be = lsqr(EEt, res)[0]
+        y += E.transpose().dot(be)
         Fi = F_(y, n)
         h = E.dot(Fi)
-        H = h.dot(C)
-        H = splu(H.tocsc())
+        H = h.dot(C).tocsc()
         d = h.dot(f(y, n))
-        x = H.solve(d)
+        x = lsqr(H, d)[0]
     else:
         print('Maximum number of iterations has been reached: '+str(maxIter))
         return x
@@ -138,4 +136,4 @@ def power_flow(system, tol, maxIter):
     C = C_maker(Ysp, n, b)
     E = E_maker(Ysp, n, b, pv)
     p = p_maker(p, n, pv)
-    return solver(x0, n, b, C, E, p, tol, maxIter)
+    return solver(x0, n, b, C, E, p, tol, int(maxIter))
