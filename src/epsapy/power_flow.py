@@ -46,7 +46,7 @@ def E_maker(Ysp, n, b, pv):
 
 
 def C_maker(Ysp, n, b):
-    aux = sparse.triu(Ysp, k=1)
+    aux = sparse.triu(Ysp, k = 1)
     row0 = np.arange(n)
     col0 = np.arange(n-1, 2*n-1)
     data0 = np.ones(n)
@@ -80,11 +80,11 @@ def flat_start(n, p, pv):
 
 def f(y, n):
     if all(np.isreal(y)):
-        ui = np.log(y[:n])
+        ui = np.log(y[:n], dtype = np.float)
         uij = np.log(y[n::2]**2 + y[n+1::2]**2)
         thetaij = np.angle(y[n::2] + y[n+1::2]*1j)
     else:
-        ui = np.log(y[:n], dtype=np.complex64)
+        ui = np.log(y[:n], dtype = np.complex64)
         uij = np.log(y[n::2]**2 + y[n+1::2]**2)
         thetaij = np.angle(y[n::2] + y[n+1::2]*1j)
     return np.concatenate((ui, uij, thetaij))
@@ -104,19 +104,21 @@ def F_(y, n):
 
 
 def solver(x, n, b, C, E, p, tol, maxIter):
+    eps = np.finfo(float).eps
     EEt = E.dot(E.transpose()).tocsc()
-    for _ in range(maxIter):
+    for i in range(maxIter):
         y = f_(C.dot(x), n, b)
         res = p - E.dot(y)
+        print(i, max(abs(res)))
         if all(abs(res) < tol):
-            return np.append(np.zeros(1),x)
-        be = lsqr(EEt, res)[0]
+            return np.append(np.zeros(1), x)
+        be = lsqr(EEt, res, atol = eps*2, btol = eps*2)[0]
         y += E.transpose().dot(be)
         Fi = F_(y, n)
         h = E.dot(Fi)
         H = h.dot(C).tocsc()
         d = h.dot(f(y, n))
-        x = lsqr(H, d)[0]
+        x = lsqr(H, d, atol = eps*2, btol = eps*2)[0]
     else:
         print('Maximum number of iterations has been reached: '+str(maxIter))
         return x
