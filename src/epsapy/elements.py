@@ -55,6 +55,14 @@ class Branch(object):
         return lim
 
 
+class Shunt(object):
+
+    def __init__(self,name,bus,phases):
+        self.name = name
+        self.bus = bus
+        self.phases = phases
+        
+
 class Line(Branch):
     
     def __init__(self,name,bus_i,bus_j,s_max,phases,long,r_L,x_L,b_Li,g_Li,b_Lj,g_Lj):
@@ -77,30 +85,20 @@ class Transformer(Branch):
         self.conn = conn
 
 
-class Shunt(object):
-
-    def __init__(self,name,bus,phases):
-        self.name = name
-        self.bus = bus
-        self.phases = phases
+class Load(Shunt):
     
-
-class Load(object):
-    
-    def __init__(self,name,bus,p_sp,q_sp,v_max,v_min):
-        self.name = name
-        self.bus = bus
+    def __init__(self,name,bus,phases,p_sp,q_sp,v_max,v_min):
+        super.__init__(name,bus,phases)
         self.p_sp = p_sp
         self.q_sp = q_sp
         self.v_max = v_max
         self.v_min = v_min
         
 
-class Generator(object):
+class Generator(Shunt):
     
-    def __init__ (self,name,bus,p_max,p_min,q_max,q_min):
-        self.name = name
-        self.bus = bus
+    def __init__ (self,name,bus,phases,p_max,p_min,q_max,q_min):
+        super.__init__(name,bus,phases)
         self.p_max = p_max
         self.p_min = p_min
         self.q_max = q_max
@@ -118,6 +116,7 @@ class System(object):
         _all = self.phases + ['n','gr']
         self.conds = [_all[i] for i in range(num_cond)]
         self.info = {'Buses': {}, 'Lines': {}, 'Transformers': {}, 'Generators': {}, 'Loads': {}, 'Shunts':{}}
+        self.conns = dict()
         
     def __str__(self):
         return '< freq: '+str(self.freq)+'; s_base: '+str(self.s_b)+'; conds: '+str(self.conds)+'; elements: '+ str(self.info)+' >'
@@ -127,10 +126,13 @@ class System(object):
 
     def bus(self,name,v_b):
         System.new_element(self,'Buses', Bus(name, v_b, self.conds))
+        self.conns[str(self.info['Buses'][name].id)] = list()
         
     def line(self,name,bus_i,bus_j,s_max,phases,long,r_L,x_L,b_Li,g_Li,b_Lj,g_Lj):
         bus_i = self.info['Buses'][bus_i].id
         bus_j = self.info['Buses'][bus_j].id
+        self.conns[str(bus_i)] += [bus_j]
+        self.conns[str(bus_j)] += [bus_i]
         System.new_element(self,'Lines',Line(name,bus_i,bus_j,s_max,phases,long,r_L,x_L,b_Li,g_Li,b_Lj,g_Lj))
     
     def transformer(self,name,bus_i,bus_j,r,x,s_max,phases,v_inom,v_jnom,conn):
@@ -150,11 +152,11 @@ class System(object):
         bus = self.info['Buses'][bus].id
         System.new_element(self, 'Shunts', Shunt(name,bus,phases))
         
-    def Ybus(self):
-        pass
+    # def Ybus(self):
+    #     pass
         
-    def p(self):
-        pass
+    # def p(self):
+    #     pass
     
-    def pv(self):
-        pass
+    # def pv(self):
+    #     pass
