@@ -13,24 +13,58 @@ algorithm to solve a three phase power flow problem.
 """
 
 import numpy as np
-from scipy import sparse
-from scipy.linalg import block_diag
-from scipy.sparse.linalg import lsqr
+from scipy.optimize import minimize
+# from scipy import sparse
+# from scipy.linalg import block_diag
+# from scipy.sparse.linalg import spsolve
 
 
-def cnstr():
-    pass
+def fun(x):
+    return 0
 
 
-def solver():
-    pass
+def fs(n):
+    return n*[1,0]
 
 
-def power_flow(system, tol, maxIter):
-    Ybus = system.Ybus()
-    if sparse.issparse(Ybus):
-        Ysp = Ybus.copy()
-    else:
-        Ysp = sparse.coo_matrix((Ybus))
-    n = Ysp.shape[0]
-    pass
+def sl(loads):
+    return np.array([0.50, 0.67, 0.0, 0.0, -1., -0.6])
+
+
+def cf(x,Yb,load):
+    xc = np.vectorize(complex)(x[0::2],x[1::2])
+    st = load
+    i_sp = list()
+    for v,s in zip(xc,st):
+        ir_sp = (s.real*v.real + s.imag*v.imag)/(v.real**2 + v.imag**2)
+        im_sp = (s.real*v.imag - s.imag*v.real)/(v.real**2 + v.imag**2)
+        i_sp.append(complex(ir_sp,im_sp))
+    i_sp = np.array(i_sp)
+    v = np.array([1.02, 0.0]+list(x))
+    i_cl = Yb.dot(v)
+    i_cl = np.vectorize(complex)(i_cl[0::2],i_cl[1::2])
+    dirk = i_sp.real - i_cl.real
+    dimk = i_sp.imag - i_cl.imag
+    return (list(zip(dirk,dimk)))
+
+
+def power_flow(system, tol=1e-6, maxIter=50):
+    opt = {'maxiter':maxIter, 'disp':True}
+    Yb = system #.Ybus()
+    load = sl(1)
+    n = Yb.shape[0]//2
+    x0 = fs(n)
+    argspf = (Yb, load)
+    cons = [{'type':'eq', 'fun': cf, 'args': argspf}]
+    res = minimize(fun, x0, constraints= cons, tol= tol, options= opt)
+    return res.x
+
+sys = np.array([#[ 15.00, -35.00, -10.00,  20.00,  -5.00,  15.00,  0.00,   0.00],
+                #[-35.00,  15.00,  20.00, -10.00,  15.00,  -5.00,  0.00,   0.00],
+                [-10.00,  20.00,  30.00, -60.00, -20.00,  40.00,  0.00,   0.00],
+                [-20.00, -10.00,  60.00,  30.00, -40.00, -20.00,  0.00,   0.00],
+                [ -5.00,  15.00, -20.00,  40.00,  25.00, -65.00,  0.00,  10.00],
+                [-15.00,  -5.00, -40.00, -20.00,  65.00,  25.00,-10.00,   0.00],
+                [  0.00,   0.00,   0.00,   0.00,   0.00,  10.00,  0.00, -10.00],
+                [  0.00,   0.00,   0.00,   0.00, -10.00,   0.00, 10.00,   0.00]])
+x = power_flow(sys)
