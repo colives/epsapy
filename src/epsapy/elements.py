@@ -137,6 +137,7 @@ class System(object):
         self.elmts = {'Buses': {}, 'Lines': {}, 'Transformers': {}, 'Grid Formers':{}, 'Generators': {}, 'Loads': {}, 'Shunts':{}}
         self.info  = {'Buses': {}, 'Lines': {}, 'Transformers': {}, 'Grid Formers':{}, 'Generators': {}, 'Loads': {}, 'Shunts':{}}
         self.conns = dict()
+        self.n = 0
         
     def __str__(self):
         return '< freq: '+str(self.freq)+'; s_base: '+str(self.s_b)+'; conds: '+str(self.conds)+'; elements: '+ str(self.info)+' >'
@@ -148,9 +149,10 @@ class System(object):
         return elmt.id
 
     def bus(self,name,v_b):
-        bus_i = System.new_element(self,'Buses', Bus(name, v_b, self.conds))
-        self.elmts['Buses'][bus_i].v = self.set_v(1.0, 0.0)
-        self.conns[bus_i] = list()
+        bus = System.new_element(self,'Buses', Bus(name, v_b, self.conds))
+        self.elmts['Buses'][bus].v = self.set_v(1.0, 0.0)
+        self.conns[bus] = list()
+        self.n = bus+1
         
     def line(self,name,bus_i,bus_j,phases,long,r_L,x_L,b_Li,g_Li,b_Lj,g_Lj):
         bus_i = self.info['Buses'][bus_i].id
