@@ -23,7 +23,7 @@ def fun(x):
     return 0
 
 
-def fs(syst):
+def v_init(syst):
     v = list()
     buses = syst.elmts['Buses']
     for bus in buses:
@@ -57,7 +57,7 @@ def power_flow(system, tol=1e-6, maxIter=50):
     Yb = system #.Ybus()
     load = sl(1)
     n = Yb.shape[0]//2
-    x0 = fs(n)
+    x0 = v_init(n)
     argspf = (Yb, load)
     cons = [{'type':'eq', 'fun': cf, 'args': argspf}]
     res = minimize(fun, x0, constraints= cons, tol= tol, options= opt)
