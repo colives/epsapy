@@ -147,13 +147,13 @@ class System(object):
         self.elmts[key][elmt.id] = elmt
         self.info[key][elmt.name] = elmt
         return elmt.id
-
+    
     def bus(self,name,v_b):
         bus = System.new_element(self,'Buses', Bus(name, v_b, self.conds))
         self.elmts['Buses'][bus].v = self.set_v(1.0, 0.0)
         self.conns[bus] = list()
         self.n = bus+1
-        
+    
     def line(self,name,bus_i,bus_j,phases,long,r_L,x_L,b_Li,g_Li,b_Lj,g_Lj):
         bus_i = self.info['Buses'][bus_i].id
         bus_j = self.info['Buses'][bus_j].id
@@ -171,7 +171,7 @@ class System(object):
         System.new_element(self, 'Grid Formers', GridFormer(name, bus, phases, v_ref, angle_a))
         self.elmts['Buses'][bus].type = 'gf'
         self.elmts['Buses'][bus].v = self.set_v(v_ref, angle_a)
-        
+    
     def generator(self,name,bus,p_max,p_min,q_max,q_min):
         bus = self.info['Buses'][bus].id
         System.new_element(self, 'Generators', Generator(name,bus,p_max,p_min,q_max,q_min))
@@ -185,7 +185,7 @@ class System(object):
     def shunt(self,name,bus,phases):
         bus = self.info['Buses'][bus].id
         System.new_element(self, 'Shunts', Shunt(name,bus,phases))
-        
+    
     def set_v(self, v_ref, angle_a):
         n = self.num_phs
         m = self.num_cond

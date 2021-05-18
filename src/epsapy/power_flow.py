@@ -23,8 +23,12 @@ def fun(x):
     return 0
 
 
-def fs(n):
-    return n*[1,0]
+def fs(syst):
+    v = list()
+    buses = syst.elmts['Buses']
+    for bus in buses:
+        v += buses[bus].v.tolist()
+    return np.array(v)
 
 
 def sl(loads):
