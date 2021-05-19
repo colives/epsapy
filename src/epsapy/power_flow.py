@@ -24,19 +24,20 @@ def fun(x):
 
 
 def v_init(syst):
-    v = list()
+    v0 = list()
     buses = syst.elmts['Buses']
     for bus in buses:
-        v += buses[bus].v.tolist()
-    return np.array(v)
+        for v in buses[bus].v:
+            v0 += [v.real, v.imag]
+    return v0
 
 
 def sl(loads):
     return np.array([0.50, 0.67, 0.0, 0.0, -1., -0.6])
 
 
-def cf(x,Yb,load):
-    xc = np.vectorize(complex)(x[0::2],x[1::2])
+def cf(x, Yb, load):
+    xc = np.vectorize(complex)(x[0::2], x[1::2])
     st = load
     i_sp = list()
     for v,s in zip(xc,st):
