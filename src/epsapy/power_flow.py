@@ -23,22 +23,25 @@ def fun(x):
     return 0
 
 
-def v_init(syst):
+def v_init(buses):
     v0 = list()
-    buses = syst.elmts['Buses']
     for bus in buses:
         for v in buses[bus].v:
             v0 += [v.real, v.imag]
     return v0
 
 
-def sl(loads):
-    return np.array([0.50, 0.67, 0.0, 0.0, -1., -0.6])
+def sl(buses):
+    s = list()
+    for bus in buses:
+        for s_ in buses[bus].s:
+            s.append(s_)
+    return s
 
 
-def cf(x, Yb, load):
+def cf(x, system):
     xc = np.vectorize(complex)(x[0::2], x[1::2])
-    st = load
+    st = sl(system.elmts['Buses'])
     i_sp = list()
     for v,s in zip(xc,st):
         ir_sp = (s.real*v.real + s.imag*v.imag)/(v.real**2 + v.imag**2)
@@ -46,7 +49,7 @@ def cf(x, Yb, load):
         i_sp.append(complex(ir_sp,im_sp))
     i_sp = np.array(i_sp)
     v = np.array([1.02, 0.0]+list(x))
-    i_cl = Yb.dot(v)
+    i_cl = v
     i_cl = np.vectorize(complex)(i_cl[0::2],i_cl[1::2])
     dirk = i_sp.real - i_cl.real
     dimk = i_sp.imag - i_cl.imag
@@ -55,11 +58,8 @@ def cf(x, Yb, load):
 
 def power_flow(system, tol=1e-6, maxIter=50):
     opt = {'maxiter':maxIter, 'disp':True}
-    Yb = system #.Ybus()
-    load = sl(1)
-    n = Yb.shape[0]//2
-    x0 = v_init(n)
-    argspf = (Yb, load)
+    x0 = v_init(system.elmts['Buses'])
+    argspf = (system)
     cons = [{'type':'eq', 'fun': cf, 'args': argspf}]
     res = minimize(fun, x0, constraints= cons, tol= tol, options= opt)
     return res.x

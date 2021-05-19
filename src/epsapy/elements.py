@@ -151,6 +151,7 @@ class System(object):
     def bus(self,name,v_b):
         bus = System.new_element(self,'Buses', Bus(name, v_b, self.conds))
         self.elmts['Buses'][bus].v = self.set_v(1.0, 0.0)
+        self.elmts['Buses'][bus].s = self.set_s(0.0, 0.0)
         self.conns[bus] = list()
         self.n = bus+1
     
@@ -195,3 +196,8 @@ class System(object):
         for k in range(m-n):
             v.append(complex(0, 0))
         return np.array(v)
+    
+    def set_s(self, p, q):
+        n = self.num_phs
+        s = np.vectorize(complex)(n*[0],n*[0])
+        return s
