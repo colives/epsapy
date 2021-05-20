@@ -14,9 +14,6 @@ algorithm to solve a three phase power flow problem.
 
 import numpy as np
 from scipy.optimize import minimize
-# from scipy import sparse
-# from scipy.linalg import block_diag
-# from scipy.sparse.linalg import spsolve
 
 
 def fun(x):
@@ -37,6 +34,11 @@ def sl(buses):
         for s_ in buses[bus].s:
             s.append(s_)
     return s
+
+
+def i_upd(buses):
+    
+    pass
 
 
 def cf(x, system):

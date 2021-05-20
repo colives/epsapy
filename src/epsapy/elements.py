@@ -65,8 +65,8 @@ class Line(Branch):
     def __init__(self, name, bus_i, bus_j, phases, long, r_L, x_L, b_Li, g_Li, b_Lj, g_Lj):
         super().__init__(name, bus_i, bus_j, phases)
         self.long = long
-        self.r_L = r_L
-        self.x_L = x_L
+        self.r_L = r_L*long*np.eye(len(phases))
+        self.x_L = x_L*long*np.eye(len(phases))
         self.b_Li = b_Li
         self.g_Li = g_Li
         self.b_Lj = b_Lj
@@ -199,5 +199,4 @@ class System(object):
     
     def set_s(self, p, q):
         n = self.num_phs
-        s = np.vectorize(complex)(n*[0],n*[0])
-        return s
+        return np.vectorize(complex)(n*[0],n*[0])
