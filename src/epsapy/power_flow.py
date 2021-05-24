@@ -28,6 +28,33 @@ def v_init(buses):
     return v0
 
 
+def i_sp(syst, x):
+    n = syst.num_phs
+    m = syst.num_cond
+    id_x = 0
+    id_l = 0
+    i = list()
+    for bus in syst.elmts['Buses'].values():
+        if bus.type == 'trns':
+            i.append(np.vectorize(complex)(m*[0],m*[0]))
+            id_x += m
+        if bus.type == 'load':
+            load = syst.elmts['Loads'][id_l]
+            for i in range(n):
+                vi = abs(x[id_x])
+                zipl = load.k_z[i]*vi*vi + load.k_i[i]*vi + load.k_p[i]
+                p = load.p_0[i]*zipl
+                q = load.q_0[i]*zipl
+                i_re = (p*x[id_x].real + q*x[id_x].imag)/(vi*vi)
+                i_im = (p*x[id_x].imag - q*x[id_x].real)/(vi*vi)
+                i.append(complex(i_re,i_im))
+                id_x += 1
+            i.append(sum(i[-n:]))
+            id_l += 1
+        else:
+            pass
+    return i
+
 def sl(buses):
     s = list()
     for bus in buses:
@@ -36,16 +63,11 @@ def sl(buses):
     return s
 
 
-def i_upd(buses):
-    
-    pass
-
-
 def cf(x, system):
     xc = np.vectorize(complex)(x[0::2], x[1::2])
     st = sl(system.elmts['Buses'])
     i_sp = list()
-    for v,s in zip(xc,st):
+    for v,s in zip(xc, st):
         ir_sp = (s.real*v.real + s.imag*v.imag)/(v.real**2 + v.imag**2)
         im_sp = (s.real*v.imag - s.imag*v.real)/(v.real**2 + v.imag**2)
         i_sp.append(complex(ir_sp,im_sp))

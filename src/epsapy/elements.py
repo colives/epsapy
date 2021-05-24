@@ -91,12 +91,12 @@ class Load(Shunt):
     
     def __init__(self, name, bus, phases, p_0, q_0, k_z, k_i, k_p):
         super().__init__(name,bus,phases)
+        self.id = Load.load_id
         self.p_0 = p_0
         self.q_0 = q_0
         self.k_z = k_z        
         self.k_i = k_i
         self.k_p = k_p
-        self.id = Load.load_id
         Load.load_id += 1
         
 
@@ -170,17 +170,17 @@ class System(object):
     def gridformer(self, name, bus, phases, v_ref, angle_a):
         bus = self.info['Buses'][bus].id
         System.new_element(self, 'Grid Formers', GridFormer(name, bus, phases, v_ref, angle_a))
-        self.elmts['Buses'][bus].type = 'gf'
+        self.elmts['Buses'][bus].type = 'gform'
         self.elmts['Buses'][bus].v = self.set_v(v_ref, angle_a)
     
     def generator(self,name,bus,p_max,p_min,q_max,q_min):
         bus = self.info['Buses'][bus].id
         System.new_element(self, 'Generators', Generator(name,bus,p_max,p_min,q_max,q_min))
-        self.elmts['Buses'][bus].type = 'gen'
+        self.elmts['Buses'][bus].type = 'gfoll'
     
-    def load(self,name,bus,p_sp,q_sp,v_max,v_min):
+    def load(self, name, bus, phases, p_0, q_0, k_z, k_i, k_p):
         bus = self.info['Buses'][bus].id
-        System.new_element(self, 'Loads', Load(name,bus,p_sp,q_sp,v_max,v_min))
+        System.new_element(self, 'Loads', Load(name, bus, phases, p_0, q_0, k_z, k_i, k_p))
         self.elmts['Buses'][bus].type = 'load'
     
     def shunt(self,name,bus,phases):
