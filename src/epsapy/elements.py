@@ -169,9 +169,10 @@ class System(object):
     
     def gridformer(self, name, bus, phases, v_ref, angle_a):
         bus = self.info['Buses'][bus].id
-        System.new_element(self, 'Grid Formers', GridFormer(name, bus, phases, v_ref, angle_a))
+        v_b = self.elmts['Buses'][bus].v_b
+        System.new_element(self, 'Grid Formers', GridFormer(name, bus, phases, v_ref/v_b, angle_a))
         self.elmts['Buses'][bus].type = 'gform'
-        self.elmts['Buses'][bus].v = self.set_v(v_ref, angle_a)
+        self.elmts['Buses'][bus].v = self.set_v(v_ref/v_b, angle_a)
     
     def generator(self,name,bus,p_max,p_min,q_max,q_min):
         bus = self.info['Buses'][bus].id
@@ -179,8 +180,9 @@ class System(object):
         self.elmts['Buses'][bus].type = 'gfoll'
     
     def load(self, name, bus, phases, p_0, q_0, k_z, k_i, k_p):
+        s_b = self.s_b
         bus = self.info['Buses'][bus].id
-        System.new_element(self, 'Loads', Load(name, bus, phases, p_0, q_0, k_z, k_i, k_p))
+        System.new_element(self, 'Loads', Load(name, bus, phases, np.array(p_0)/s_b, np.array(q_0)/s_b, k_z, k_i, k_p))
         self.elmts['Buses'][bus].type = 'load'
     
     def shunt(self,name,bus,phases):
