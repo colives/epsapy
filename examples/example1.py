@@ -31,7 +31,7 @@ cigre_eu.bus('busR17', 230)
 cigre_eu.bus('busR18', 230)
 
 # Lines
-cigre_eu.line('line1',' busR0', 'busR1', ['a','b','c','n'], 1, 1, 1, 1, 1, 1, 1)
+cigre_eu.line('line1','busR0', 'busR1', ['a','b','c','n'], 1, 1, 1, 1, 1, 1)
 
 # Generators
 cigre_eu.gridformer('grid',  'busR0', 20e3/np.sqrt(3), 0.00)

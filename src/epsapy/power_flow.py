@@ -55,6 +55,7 @@ def i_sp(syst, x):
             pass
     return i
 
+
 def sl(buses):
     s = list()
     for bus in buses:
