@@ -9,4 +9,8 @@ It will provide:
     
     + Eigenvalue Analysis
 
+epsapy is free software: you can redistribute it and/or modify it under the terms of the MIT License.
+
+epsapy is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
+
 We welcome contributions to epsapy of any kind.
