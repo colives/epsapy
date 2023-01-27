@@ -8,7 +8,7 @@
 # epsapy is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY.
 """
-The :mod:`epsapy.power_flow` module is intended to contain the specific
+The :mod:`epsapy.power_flow_fact` module is intended to contain the specific
 algorithm to solve a three phase power flow problem.
 """
 
