@@ -14,112 +14,19 @@ power flow problem.
 
 import string
 import numpy as np
-
-class Node(object):
-    
-    def __init__ (self, cond):
-        self.cond = cond
-        self.volt = None
-        self.curr = None
-        self.p = None
-        self.q = None
-
-
-class Bus(object):
-    bus_id = 0
-    node_cls = Node
-    
-    def __init__ (self, name, v_b, conds):
-        self.id = Bus.bus_id
-        self.name = name
-        self.v_b = v_b
-        self.type = 'trns'
-        self.y_sh = None
-        self.v = list()
-        self.s = list()
-        for cond in conds:
-            exec('self.node_'+cond+' = '+"self.node_cls('"+cond+"')")
-        Bus.bus_id += 1
-
-
-class Branch(object):
-
-    def __init__(self, name, bus_i, bus_j):
-        self.name = name
-        self.bus_i = bus_i
-        self.bus_j = bus_j
-        self.id = int(str(bus_i)+str(bus_j))
-
-
-class Shunt(object):
-
-    def __init__(self, name, bus):
-        self.name = name
-        self.bus = bus
-        
-
-class Line(Branch):
-    
-    def __init__(self, name, bus_i, bus_j, nc, long, r_L, x_L, b_Li, g_Li, b_Lj, g_Lj):
-        super().__init__(name, bus_i, bus_j)
-        self.long = long
-        self.r_L = r_L*long*np.eye(nc)
-        self.x_L = x_L*long*np.eye(nc)
-        self.b_Li = b_Li
-        self.g_Li = g_Li
-        self.b_Lj = b_Lj
-        self.g_Lj = g_Lj
-        z = np.vectorize(complex)(r_L, x_L)
-        self.y_conn = 1/z
-        self.y_sh_i = np.vectorize(complex)(g_Li, b_Li)
-        self.y_sh_j = np.vectorize(complex)(g_Lj, b_Lj)
-        
-
-class Transformer(Branch):
-
-    def __init__(self, name, bus_i, bus_j, r, x, v_inom, v_jnom, conn):
-        super().__init__(name, bus_i, bus_j)
-        self.v_inom = v_inom
-        self.v_jnom = v_jnom
-        self.conn = conn
-
-
-class Load(Shunt):
-    load_id = 0
-    
-    def __init__(self, name, bus, p_0, q_0, k_z, k_i, k_p):
-        super().__init__(name, bus)
-        self.id = Load.load_id
-        self.p_0 = p_0
-        self.q_0 = q_0
-        self.k_z = k_z        
-        self.k_i = k_i
-        self.k_p = k_p
-        Load.load_id += 1
-        
-
-class GridFormer(Shunt):
-    gf_id = 0
-    
-    def __init__(self, name, bus, v_ref, angle_a):
-        super().__init__(name, bus)
-        self.v_ref = v_ref
-        self.angle_a = angle_a
-        self.id = GridFormer.gf_id
-        GridFormer.gf_id += 1
-        
-
-class Generator(Shunt):
-    gen_id = 0
-    
-    def __init__ (self, name, bus, p_max, p_min, q_max, q_min):
-        super().__init__(name, bus)
-        self.p_max = p_max
-        self.p_min = p_min
-        self.q_max = q_max
-        self.q_min = q_min
-        self.id = Generator.gen_id
-        Generator.gen_id += 1
+from bus import Node, Bus
+from branch import Branch
+from shunt import Shunt
+from line import Line
+from transformer import Transformer
+from load import Load
+from gform import GridFormer
+from generator import Generator
+from turbine import Turbine
+from governor import Governor
+from agc import AGC
+from avr import AVR
+from pss import PSS
 
 
 class System(object):
