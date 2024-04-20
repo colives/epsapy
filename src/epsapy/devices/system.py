@@ -27,17 +27,19 @@ from governor import Governor
 from agc import AGC
 from avr import AVR
 from pss import PSS
+from utils import Int_Input, Num_Input
 
 
 class System(object):
     
     intfloat = [type(1), type(1.), type(np.sqrt(3))]
     
-    def __init__(self,freq,s_b,num_phs,num_cond):
-        assert type(freq) in self.intfloat, 'freq must be '+str(self.intfloat[0])+' or '+str(self.intfloat[1])
-        assert type(s_b) in self.intfloat, 's_b must be '+str(self.intfloat[0])+' or '+str(self.intfloat[1])
-        assert type(num_phs) == self.intfloat[0], 'num_phs must be '+str(self.intfloat[0])
-        assert type(num_cond) == self.intfloat[0], 'num_cond must be '+str(self.intfloat[0])
+    freq = Num_Input()
+    s_b = Num_Input()
+    num_phs = Int_Input()
+    num_cond = Int_Input()
+    
+    def __init__(self, freq, s_b, num_phs, num_cond):
         self.freq = freq
         self.s_b = s_b
         self.num_phs = num_phs
